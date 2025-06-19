@@ -26,8 +26,66 @@ Build Notes
 
 To build the JavaCPP Presets for ModSecurity, libraries required by ModSecurity should be installed.
 
-Detailed information can be found here:
+### Prerequisites
 
+#### macOS (including Apple Silicon)
+Install required dependencies using Homebrew:
+```bash
+brew install autoconf automake libtool pcre
+```
+
+#### Linux
+Install development packages:
+```bash
+# Ubuntu/Debian
+sudo apt-get install autoconf automake libtool libpcre3-dev
+
+# CentOS/RHEL
+sudo yum install autoconf automake libtool pcre-devel
+```
+
+### Building from Source
+
+To build the JavaCPP Presets for ModSecurity from source:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/bytedeco/javacpp-presets.git
+   cd javacpp-presets/modsecurity
+   ```
+
+2. **Build the native libraries and Java bindings:**
+   ```bash
+   mvn clean install
+   ```
+
+   This will:
+   - Download and compile ModSecurity C++ library
+   - Generate Java bindings using JavaCPP
+   - Create platform-specific JAR files with native libraries
+
+3. **Platform Support:**
+   - Linux x86_64
+   - macOS x86_64 (Intel)
+   - **macOS arm64 (Apple Silicon)** ✅ *Newly supported*
+   - Windows (requires additional setup)
+
+### Manual Build Process
+
+For manual building or troubleshooting:
+
+```bash
+# Clean previous builds
+bash cppbuild.sh clean modsecurity
+
+# Build native libraries
+bash cppbuild.sh install modsecurity
+
+# Build Java bindings
+mvn clean compile
+```
+
+For detailed compilation information, refer to:
  * https://github.com/SpiderLabs/ModSecurity/wiki/Compilation-recipes-for-v3.x
 
 
@@ -37,9 +95,20 @@ Here is a simple example of ModSecurity ported to Java from this C++ source file
 
  * https://github.com/SpiderLabs/ModSecurity#simple-example-using-c
 
-We can use [Maven 3](http://maven.apache.org/) to download and install automatically all the class files as well as the native binaries. To run this sample code, after creating the `pom.xml` and `ModSecuritySimpleIntervention.java.java` source files below, simply execute on the command line:
+We can use [Maven 3](http://maven.apache.org/) to download and install automatically all the class files as well as the native binaries.
+
+### Running the Sample
+
+After creating the `pom.xml` and `ModSecuritySimpleIntervention.java` source files below:
 ```bash
- $ mvn compile exec:java
+mvn compile exec:java
+```
+
+#### Expected Output
+```
+There is intervention !!!
+MessageRuleSize 1
+RuleMessage id = 1 message  =  ' Attack detected' t:lowercase
 ```
 
 ### The `pom.xml` build file
@@ -48,16 +117,18 @@ We can use [Maven 3](http://maven.apache.org/) to download and install automatic
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bytedeco.modsecurity</groupId>
     <artifactId>samples</artifactId>
-    <version>1.5.8</version>
+    <version>3.0.8-1.5.8</version>
     <properties>
         <exec.mainClass>ModSecuritySimpleIntervention</exec.mainClass>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>modsecurity-platform</artifactId>
             <version>3.0.8-1.5.8</version>
-       </dependency>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>.</sourceDirectory>
